@@ -1,0 +1,180 @@
+
+-- MOBILE MACRO
+-- Controller-friendly Lua menu
+-- UI and macro configuration only
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MobileMacro"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 420, 0, 310)
+Main.Position = UDim2.new(0.5, -210, 0.5, -155)
+Main.BackgroundColor3 = Color3.fromRGB(12, 20, 40)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = Main
+
+local Header = Instance.new("TextLabel")
+Header.Size = UDim2.new(1, 0, 0, 45)
+Header.BackgroundColor3 = Color3.fromRGB(25, 48, 90)
+Header.Text = "MOBILE MACRO"
+Header.TextColor3 = Color3.new(1, 1, 1)
+Header.Font = Enum.Font.GothamBold
+Header.TextSize = 20
+Header.Parent = Main
+
+local Sections = {
+    "COMBAT",
+    "SNOWBALL",
+    "VISUALS",
+    "CONTROLLER",
+    "MACRO EDITOR",
+    "GENERAL"
+}
+
+local Content = Instance.new("Frame")
+Content.Position = UDim2.new(0, 145, 0, 55)
+Content.Size = UDim2.new(1, -155, 1, -65)
+Content.BackgroundColor3 = Color3.fromRGB(18, 30, 55)
+Content.BorderSizePixel = 0
+Content.Parent = Main
+
+local ContentCorner = Instance.new("UICorner")
+ContentCorner.CornerRadius = UDim.new(0, 8)
+ContentCorner.Parent = Content
+
+local function clearContent()
+    for _, child in ipairs(Content:GetChildren()) do
+        child:Destroy()
+    end
+end
+
+local function addLabel(text, position)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 35)
+    label.Position = position
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 15
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = Content
+    return label
+end
+
+local function addButton(text, position, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -20, 0, 35)
+    button.Position = position
+    button.BackgroundColor3 = Color3.fromRGB(35, 65, 115)
+    button.Text = text
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 13
+    button.Parent = Content
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 7)
+    corner.Parent = button
+
+    button.Activated:Connect(callback)
+    return button
+end
+
+local macroSteps = {}
+
+local function showSection(section)
+    clearContent()
+
+    addLabel(section, UDim2.new(0, 10, 0, 5))
+
+    if section == "COMBAT" then
+        addLabel("Combat configuration", UDim2.new(0, 10, 0, 50))
+        addButton("Combat profile settings", UDim2.new(0, 10, 0, 90), function()
+            print("Combat profile selected")
+        end)
+
+    elseif section == "SNOWBALL" then
+        addLabel("Snowball configuration", UDim2.new(0, 10, 0, 50))
+        addButton("Snowball profile settings", UDim2.new(0, 10, 0, 90), function()
+            print("Snowball profile selected")
+        end)
+
+    elseif section == "VISUALS" then
+        addLabel("Visual preferences", UDim2.new(0, 10, 0, 50))
+        addButton("Change menu color", UDim2.new(0, 10, 0, 90), function()
+            Main.BackgroundColor3 = Color3.fromRGB(20, 30, 60)
+        end)
+
+    elseif section == "CONTROLLER" then
+        addLabel("Controller information", UDim2.new(0, 10, 0, 50))
+        addLabel("A = Select", UDim2.new(0, 10, 0, 90))
+        addLabel("B = Back", UDim2.new(0, 10, 0, 125))
+        addLabel("D-pad = Navigate", UDim2.new(0, 10, 0, 160))
+        addLabel("Start = Not assigned", UDim2.new(0, 10, 0, 195))
+
+    elseif section == "MACRO EDITOR" then
+        addLabel("Your custom sequence", UDim2.new(0, 10, 0, 45))
+
+        addButton("Add Wait Step", UDim2.new(0, 10, 0, 85), function()
+            table.insert(macroSteps, {
+                action = "Wait",
+                delay = 0.5
+            })
+            print("Added wait step. Total:", #macroSteps)
+        end)
+
+        addButton("Add A Button Label", UDim2.new(0, 10, 0, 125), function()
+            table.insert(macroSteps, {
+                action = "A Button",
+                delay = 0.2
+            })
+            print("Added A Button label. Total:", #macroSteps)
+        end)
+
+        addButton("Clear Sequence", UDim2.new(0, 10, 0, 165), function()
+            table.clear(macroSteps)
+            print("Sequence cleared")
+        end)
+
+        addLabel("Steps: " .. #macroSteps, UDim2.new(0, 10, 0, 210))
+
+    elseif section == "GENERAL" then
+        addLabel("Mobile Macro settings", UDim2.new(0, 10, 0, 50))
+        addLabel("Platform: iPad", UDim2.new(0, 10, 0, 90))
+        addLabel("Input: Controller", UDim2.new(0, 10, 0, 125))
+        addLabel("Version: 1.0", UDim2.new(0, 10, 0, 160))
+    end
+end
+
+for index, section in ipairs(Sections) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 130, 0, 35)
+    button.Position = UDim2.new(0, 8, 0, 55 + ((index - 1) * 40))
+    button.BackgroundColor3 = Color3.fromRGB(25, 48, 90)
+    button.Text = section
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 11
+    button.Parent = Main
+
+    button.Activated:Connect(function()
+        showSection(section)
+    end)
+end
+
+showSection("COMBAT")
+
+print("Mobile Macro loaded!")
